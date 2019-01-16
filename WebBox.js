@@ -224,8 +224,6 @@ function resize(box) {
 		document.onmousemove = null;
 		document.onmouseup = null;
 	}
-
-
 }
 
 var spawn = document.getElementById("spawn");
