@@ -44,6 +44,8 @@ function dragBox(box) {
 		document.onmousemove = drag;
 		box.style.zIndex = "9";
 		box.style.border = "3px solid yellow";
+		box.classList.add("grabbing");
+		box.classList.remove("grab");
 
 		boxes = document.getElementsByClassName("WebBox");
 		
@@ -55,6 +57,7 @@ function dragBox(box) {
 			boxes[i].style.zIndex = "1";
 			boxes[i].style.border = "3px solid black";
 		}
+		return false;
 	}
 
 	function endDrag(e) {
@@ -62,6 +65,10 @@ function dragBox(box) {
 		e.preventDefault();
 		document.onmousemove = null;
 		document.onmouseup = null;
+		box.classList.add("grab");
+		box.classList.remove("grabbing");
+
+		return false;
 	}
 
 	function drag(e) {
