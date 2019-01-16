@@ -1,4 +1,14 @@
-// This is the JS file for the WebBox project.
+// WebBox
+//
+// @author Garrett Myers
+//
+// A script that allows for dynamic creation of of WebBox
+// HTML elements. WebBox elements can be dragged anywhere
+// in the browser and resized from any corner or edge. 
+// Resizing works in the traditional fashion and WebBoxes
+// have minimum dimensions of 20x20 pixels. Each WebBox
+// is uniqely identified by a number in the top middle of 
+// the box.
 
 document.onmousedown = function(e) {
 	if(!e) return;
@@ -39,7 +49,6 @@ function dragBox(box) {
 		initX = e.clientX - offsetX;
 		initY = e.clientY - offsetY;
 
-		//Add event listeners to document for anticipated drag.
 		document.onmouseup = endDrag;
 		document.onmousemove = drag;
 		box.style.zIndex = "9";
@@ -132,6 +141,7 @@ function resize(box) {
 		document.onmouseup = endResize;
 	}
 
+	//called on mousemove events when a corner or edge is selected.
 	function resizeBox(e) {
 		if(!e) return;
 		e.preventDefault();
@@ -140,104 +150,78 @@ function resize(box) {
 		var offsetY = e.clientY - mouseInitY;
 
 		if(selEdgeVert.classList.contains("topLeft")) {
-			var newWidth = width - offsetX;
-			var newHeight = height - offsetY;
-
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-				console.log(xBox + offsetX + "px");
-				box.style.left = xBox + offsetX + "px";
-			}
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-				box.style.top = yBox + offsetY + "px";
-			}
-			console.log("Moving top left");
+			updateHeight(height, offsetY, true);
+			updateWidth(width, offsetX, true);
 		} else if(selEdgeVert.classList.contains("topRight")) {
-			var newWidth = width + offsetX;
-			var newHeight = height - offsetY;
-
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-			}
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-				box.style.top = yBox + offsetY + "px";
-			}
-			console.log("Moving top right");
+			updateHeight(height, offsetY, true);
+			updateWidth(width, offsetX, false);
 		} else if(selEdgeVert.classList.contains("bottomLeft")) {
-			var newWidth = width - offsetX;
-			var newHeight = height + offsetY;
-
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-				box.style.left = xBox + offsetX + "px";
-			}
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-			}
-
-			console.log("Moving bottom left");
+			updateHeight(height, offsetY, false);
+			updateWidth(width, offsetX, true);
 		} else if (selEdgeVert.classList.contains("bottomRight")){
-			var newWidth = width + offsetX;
-			var newHeight = height + offsetY;
-
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-			}
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-			}
-			console.log("Moving bottom right");
+			updateHeight(height, offsetY, false);
+			updateWidth(width, offsetX, false);
 		} else if(selEdgeVert.classList.contains("up")) {
-			var newHeight = height - offsetY;
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-				box.style.top = yBox + offsetY + "px";
-			}
+			updateHeight(height, offsetY, true);
 		} else if(selEdgeVert.classList.contains("down")) {
-			var newHeight = height + offsetY;
-
-			if(newHeight > minDimension) {
-				box.style.height = newHeight + "px";
-			}
+			updateHeight(height, offsetY, false);
 		} else if(selEdgeVert.classList.contains("right")) {
-			var newWidth = width + offsetX;
-
-			
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-			}
+			updateWidth(width, offsetX, false);
 		} else {
-			var newWidth = width - offsetX;
-
-			if(newWidth > minDimension) {
-				box.style.width = newWidth + "px";
-				box.style.left = xBox + offsetX + "px"
-			}
+			updateWidth(width, offsetX, true);
 		}
 	}
 
+	function updateHeight(boxHeight, offset, dragUp) {
+		var newHeight = 0;
+
+		if(dragUp) {
+			newHeight = boxHeight - offset;
+			if(newHeight <= minDimension) return;
+			box.style.top = yBox + offset + "px";
+		} else {
+			newHeight = boxHeight + offset;
+			if(newHeight <= minDimension) return;
+		}
+
+		box.style.height = newHeight + "px";
+	}
+
+	function updateWidth(boxWidth, offset, dragLeft) {
+		var newWidth = 0;
+
+		if(dragLeft) {
+			newWidth = boxWidth - offset;
+			if(newWidth <= minDimension) return;
+			box.style.left = xBox + offset + "px";
+		} else {
+			newWidth = boxWidth + offset;
+			if(newWidth <= minDimension) return;
+		}
+
+		box.style.width = newWidth + "px";
+	}
+
+	//Called on mouseup events when finished resizing.
 	function endResize(e) {
 		if(!e) return;
 		e.preventDefault();
-
-		console.log("end resize");
 		document.onmousemove = null;
 		document.onmouseup = null;
 	}
 }
 
 var spawn = document.getElementById("spawn");
-
 spawn.onmousedown = spawnBox;
 var boxId = 0;
 
+//	spawnBox
+//	e - Event triggered by pressing the '+' button 
+//		defined in WebBox.htm
+//
+//	Description:
+//		Allows for the dynamic creation of WebBox
+//		elements.
 function spawnBox(e) {
 	if(!e) return;
 	e.preventDefault();
@@ -253,6 +237,7 @@ function spawnBox(e) {
 		left 		= document.createElement("DIV"),
 		text 		= document.createTextNode(boxId);
 
+	//Assign each WebBox a unique id
 	newBox.id = boxId++;
 
 	newBox.className 		= "WebBox";
@@ -267,6 +252,7 @@ function spawnBox(e) {
 
 	newBox.style.textAlign = "center";
 
+	//Add resizing areas to the WebBox
 	newBox.appendChild(text);
 	newBox.appendChild(topLeft); 
 	newBox.appendChild(topRight); 
@@ -277,10 +263,9 @@ function spawnBox(e) {
 	newBox.appendChild(right);
 	newBox.appendChild(left);
 
-
+	//Initialize event listeners
 	dragBox(newBox);
 	resize(newBox);
 
 	document.body.appendChild(newBox); 
-
 }
