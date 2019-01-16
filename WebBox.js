@@ -201,7 +201,12 @@ function resize(box) {
 				box.style.width = newWidth + "px";
 			}
 		} else {
+			var newWidth = width - offsetX;
 
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+				box.style.left = xBox + offsetX + "px";
+			}
 		}
 	}
 
