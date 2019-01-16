@@ -194,7 +194,12 @@ function resize(box) {
 				box.style.height = newHeight + "px";
 			}
 		} else if(selEdgeVert.classList.contains("right")) {
+			var newWidth = width + offsetX;
 
+			
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+			}
 		} else {
 
 		}
