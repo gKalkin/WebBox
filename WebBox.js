@@ -1,19 +1,17 @@
 // This is the JS file for the WebBox project.
-var box = document.querySelector("#box1");
-
-dragBox(box);
-dragBox(document.querySelector("#box2"));
 
 document.onmousedown = function(e) {
-	//if(!e) return;
-	boxes = document.getElementsByClassName("WebBox")
+	if(!e) return;
 	if(e.target.className == "WebBox" || e.target.classList.contains("corner")) return;
+		
+	boxes = document.getElementsByClassName("WebBox")
 
-	box.style.zIndex = "1";
-	document.querySelector("#box2").style.zIndex = "1";
+	var i;
 
-	box.style.backgroundColor = "red";
-	document.querySelector("#box2").style.backgroundColor = "red";
+	for (i = 0; i < boxes.length; i++) {
+		boxes[i].style.zIndex = "1";
+		boxes[i].style.border = "none";
+	}
 }
 
 function dragBox(box) {
@@ -39,7 +37,7 @@ function dragBox(box) {
 		document.onmouseup = endDrag;
 		document.onmousemove = drag;
 		box.style.zIndex = "9";
-		box.style.backgroundColor = "blue";
+		box.style.border = "3px solid yellow";
 
 		boxes = document.getElementsByClassName("WebBox");
 		
@@ -49,7 +47,7 @@ function dragBox(box) {
 			if (boxes[i].id == box.id) continue;
 
 			boxes[i].style.zIndex = "1";
-			boxes[i].style.backgroundColor = "red";
+			boxes[i].style.border = "none";
 		}
 	}
 
@@ -72,84 +70,158 @@ function dragBox(box) {
 	}
 }
 
-resize(document.getElementsByClassName("topLeft")[0]);
+function resize(box) {
+	var selCorner,
+		rect,
+		height 			= 0,
+		width 			= 0,
+		xBox 			= 0,
+		yBox 			= 0,
+		mouseInitX 		= 0;
+		mouseInitY 		= 0;
+		minDimension 	= 20;
+		corners 		= box.children;
 
-function resize(corner) {
-	var mouse_initX,
-		mouse_initY,
-		curr_mouseX,
-		curr_mouseY,
-		offsetX		= 0,
-		offsetY		= 0,
-		box 		= corner.parentElement,
-		rect 		= box.getBoundingClientRect(),
-		boxHeight 	= rect.height,
-		boxWidth 	= rect.width,
-		boxTop 		= rect.top,
-		boxLeft 	= rect.left,
-		minBounds 	= 30;
+	var i;
 
-		corner.onmousedown = startResize;
+	for(i = 0; i < corners.length; i++) {
+		corners[i].onmousedown = startDrag;
+	}
 
-		function startResize(e) {
-			if(!e) return;
+	function startDrag(e) {
+		if(!e) return;
+		e.preventDefault();
 
-			mouse_initX = e.clientX - offsetX;
-			mouse_initY = e.clientY - offsetY;
+		selCorner = e.target;
 
-			document.onmouseup = endResize;
-			document.onmousemove = resizeDrag;
-			box.style.zIndex = "9";
-			box.style.backgroundColor = "blue";
+		//Rectangle dimensions.
+		rect = box.getBoundingClientRect();
+		height = rect.height;
+		width = rect.width;
 
-			boxes = document.getElementsByClassName("WebBox");
-		
-			var i;
+		//Need previous top of left offset values to move upper left corner.
+		xBox = parseInt(getComputedStyle(box, null).getPropertyValue("left"));
+		yBox = parseInt(getComputedStyle(box, null).getPropertyValue("top"));;
 
-			for (i = 0; i < boxes.length; i++) {
-				if (boxes[i].id == box.id) continue;
+		//Needed to calculate offset.
+		mouseInitX = e.clientX;
+		mouseInitY = e.clientY;
 
-				boxes[i].style.zIndex = "1";
-				boxes[i].style.backgroundColor = "red";
-			}
-		}
+		console.log(box.getBoundingClientRect());
 
-		function endResize(e) {
-			if(!e) return;
+		//Bring box to front and indicate it has been selected.
+		box.style.zIndex = "9";
+		box.style.border = "3px solid yellow";
 
-			document.onmousemove = null;
-			document.onmouseup = null;
-		}
+		document.onmousemove = resizeBox;
+		document.onmouseup = endResize;
+	}
 
-		function resizeDrag(e) {
-			if(!e) return;
+	function resizeBox(e) {
+		if(!e) return;
 
-			cornerClass = corner.classList
-			curr_mouseX = e.clientX;
-			curr_mouseY = e.clientY;
-			offsetX = curr_mouseX - mouse_initX;
-			offsetY = curr_mouseY - mouse_initY;
+		var offsetX = e.clientX - mouseInitX;
+		var offsetY = e.clientY - mouseInitY;
 
+		if(selCorner.classList.contains("topLeft")) {
+			var newWidth = width - offsetX;
+			var newHeight = height - offsetY;
 
-			if(cornerClass.contains("topLeft")) {
-				console.log("box height: " + boxHeight) 
-				console.log("init mouse: " + mouse_initY)
-				console.log("current mouse: " + curr_mouseY)
-				console.log()
-				height = boxHeight - (curr_mouseY - mouse_initY);
-				width = boxWidth - (curr_mouseX - mouse_initX);
-
-				if(height > minBounds) {
-					box.style.top = (boxTop + (curr_mouseY - mouse_initY)) + "px"
-					box.style.height = height + "px"
-				}
-			} else if( cornerClass.contains("topRight")) {
-
-			} else if (cornerClass.contains("bottomLeft")) {
-
-			} else {
-
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+				console.log(xBox + offsetX + "px");
+				box.style.left = xBox + offsetX + "px";
 			}
 
+			if(newHeight > minDimension) {
+				box.style.height = newHeight + "px";
+				box.style.top = yBox + offsetY + "px";
+			}
+			console.log("Moving top left");
+		} else if(selCorner.classList.contains("topRight")) {
+			var newWidth = width + offsetX;
+			var newHeight = height - offsetY;
+
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+			}
+
+			if(newHeight > minDimension) {
+				box.style.height = newHeight + "px";
+				box.style.top = yBox + offsetY + "px";
+			}
+			console.log("Moving top right");
+		} else if(selCorner.classList.contains("bottomLeft")) {
+			var newWidth = width - offsetX;
+			var newHeight = height + offsetY;
+
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+				box.style.left = xBox + offsetX + "px";
+			}
+
+			if(newHeight > minDimension) {
+				box.style.height = newHeight + "px";
+			}
+
+			console.log("Moving bottom left");
+		} else {
+			var newWidth = width + offsetX;
+			var newHeight = height + offsetY;
+
+			if(newWidth > minDimension) {
+				box.style.width = newWidth + "px";
+			}
+
+			if(newHeight > minDimension) {
+				box.style.height = newHeight + "px";
+			}
+			console.log("Moving bottom right");
 		}
+	}
+
+	function endResize(e) {
+		console.log("end resize");
+		document.onmousemove = null;
+		document.onmouseup = null;
+	}
+
+
+}
+
+var spawn = document.getElementById("spawn");
+
+spawn.onmousedown = spawnBox;
+var boxId = 0;
+
+function spawnBox(e) {
+	var newBox 		= document.createElement("DIV"),
+		topLeft 	= document.createElement("DIV"), 
+		topRight 	= document.createElement("DIV"), 
+		bottomLeft 	= document.createElement("DIV"), 
+		bottomRight = document.createElement("DIV"),
+		text 		= document.createTextNode(boxId);
+
+	newBox.id = boxId++;
+
+	newBox.className = "WebBox";
+	topLeft.className = "corner topLeft";
+	topRight.className = "corner topRight";
+	bottomLeft.className = "corner bottomLeft";
+	bottomRight.className = "corner bottomRight";
+
+	newBox.style.textAlign = "center";
+
+	newBox.appendChild(text);
+	newBox.appendChild(topLeft); 
+	newBox.appendChild(topRight); 
+	newBox.appendChild(bottomLeft); 
+	newBox.appendChild(bottomRight);
+
+
+	dragBox(newBox);
+	resize(newBox);
+
+	document.body.appendChild(newBox); 
+
 }

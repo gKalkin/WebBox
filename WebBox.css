@@ -44,5 +44,9 @@ body {
 	position: absolute;
 	height: 100px;
 	width: 100px;
-	background-color: red;
+	background-color: green;
+}
+
+#spawn h1{
+	cursor: pointer;
 }
