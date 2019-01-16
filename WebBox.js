@@ -2,8 +2,9 @@
 
 document.onmousedown = function(e) {
 	if(!e) return;
-	if(e.target.className == "WebBox" 
-		|| e.target.classList.contains("corner")) return;
+	if(e.target.classList.contains("WebBox") 
+		|| e.target.classList.contains("corner")
+		|| e.target.classList.contains("edge")) return;
 		
 	boxes = document.getElementsByClassName("WebBox")
 
@@ -31,6 +32,8 @@ function dragBox(box) {
 		if(!e 
 			|| e.target.classList.contains("corner")
 			|| e.target.classList.contains("edge")) return;
+
+		e.preventDefault();
 		console.log(e.target)
 
 		initX = e.clientX - offsetX;
@@ -56,12 +59,14 @@ function dragBox(box) {
 
 	function endDrag(e) {
 		if(!e) return;
+		e.preventDefault();
 		document.onmousemove = null;
 		document.onmouseup = null;
 	}
 
 	function drag(e) {
 		if(!e) return;
+		e.preventDefault();
 
 		currentX = e.clientX - initX;
 		currentY = e.clientY - initY;
@@ -122,6 +127,7 @@ function resize(box) {
 
 	function resizeBox(e) {
 		if(!e) return;
+		e.preventDefault();
 
 		var offsetX = e.clientX - mouseInitX;
 		var offsetY = e.clientY - mouseInitY;
@@ -205,12 +211,15 @@ function resize(box) {
 
 			if(newWidth > minDimension) {
 				box.style.width = newWidth + "px";
-				box.style.left = xBox + offsetX + "px";
+				box.style.left = xBox + offsetX + "px"
 			}
 		}
 	}
 
 	function endResize(e) {
+		if(!e) return;
+		e.preventDefault();
+
 		console.log("end resize");
 		document.onmousemove = null;
 		document.onmouseup = null;
@@ -225,6 +234,9 @@ spawn.onmousedown = spawnBox;
 var boxId = 0;
 
 function spawnBox(e) {
+	if(!e) return;
+	e.preventDefault();
+
 	var newBox 		= document.createElement("DIV"),
 		topLeft 	= document.createElement("DIV"), 
 		topRight 	= document.createElement("DIV"), 
